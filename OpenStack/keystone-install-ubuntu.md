@@ -49,6 +49,7 @@
 '''
 
 3. 重启ＭｙＳＱＬ，并进行安全设置
+
     > \# service mysql restart
     
     安全设置中需要设置数据库root密码设置
@@ -97,6 +98,7 @@ Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeysto
     > provider = pki
     
 ### 初始化keystone
+
 
 这个过程中，keystone-manage工具会往keystone数据库中插入初始化数据。
     > \# su -s /bin/sh -c "keystone-manage db_sync" keystone
@@ -160,12 +162,15 @@ Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeysto
   
 ## 配置Apache HTTP Server
 在/etc/apache2/apache2.conf文件中配置ServerName，可以增加在文件最底部。
+
     > ServerName controller
 
 注意，如果apache2.conf配置文件不存在，说明Apache2还没有安装成功，请确认安装keystone软件包时apache2软件是否同时安装，如果没有安装，请安装Apache2及其wsgi模块。
+
     > \# apt install apache2 libapache2-mod-wsgi
 
     然后重启Apache
+    
     > \# service apache2 restart
 
 至此，keystone已经安装完成，恭喜！
@@ -175,11 +180,12 @@ keystone安装完成后，可以使用OpenStack Client调用，测试keystone是
 调用OpenStack Client前，需要先设置环境变量。
 
 在本地创建一个rc文件，使用OpenStack Client前将rc加载到环境变量中。 此处可以用非ｒｏｏｔ用户执行。
+
     > $ vim ~/openstack-cli.rc
     
     输入下面内容，其中controller需要替换成本机ＩＰ地址，　ＡＤＭＩＮ_PASS需要替换成自定义的密码。
     
-'''javascript
+'''
 
     export OS_USERNAME=admin
     export OS_PASSWORD=ADMIN_PASS
@@ -193,6 +199,6 @@ keystone安装完成后，可以使用OpenStack Client调用，测试keystone是
     > $ source openstack-cli.rc
     > $ openstack token issue
     
-    返回token，则说明Ｋｅｙｓｔｏｎｅ可以正常运行！
+返回token，则说明Ｋｅｙｓｔｏｎｅ可以正常运行！
 
   
