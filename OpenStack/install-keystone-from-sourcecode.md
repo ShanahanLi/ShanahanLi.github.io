@@ -91,3 +91,20 @@ pip是Ｐｙｔｈｏｎ的包管理程序，python3默认自带pip，通过命�
 这种方法的缺点是依赖了ＩＤＥ，如果是在开发环境，这种方法很方便，很省心。 如果开发环境和生产环境是同一个系统的话，可以把dist-packages目录下的package拷贝过去。
 
 ### 可选2: pip安装依赖包到指定目录
+通过在pip install的命令中指定安装参数，将依赖包安装到指定的目录下：
+
+    $ pip install --target=/home/community_work/keystone-packages -r requirements.txt
+
+安装过程中也不是一帆风顺，编译scrypt时报编译错误,可以通过下面的命令解决：
+
+"src/scrypt.c:27:20: fatal error: Python.h: No such file or directory"，
+
+    $ sudo apt-get install python-dev
+    $ sudo apt-get install python3-dev
+
+scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: No such file or directory
+
+    $ sudo apt-get install libssl-dev
+
+pip install执行成功后，在对应的目录下就能看到所有安装的依赖包。
+在碰到问题搜索解决答案时，有博友提到可通过virtualenv隔离环境依赖的办法，有空的时候要研究下，http://bbs.chinaunix.net/forum.php?mod=viewthread&tid=4142313
