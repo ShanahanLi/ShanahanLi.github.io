@@ -47,6 +47,7 @@
     sqlalchemy-migrate>=0.11.0 # Apache-2.0
     stevedore>=1.20.0 # Apache-2.0
     passlib>=1.7.0 # BSD
+    
     python-keystoneclient>=3.8.0 # Apache-2.0
     keystonemiddleware>=4.12.0 # Apache-2.0
     bcrypt>=3.1.3 # Apache-2.0
@@ -72,5 +73,21 @@
     osprofiler>=1.4.0 # Apache-2.0
     pytz>=2013.6 # MIT
 
+## 安装依赖包
+### 关于pip
+pip是Ｐｙｔｈｏｎ的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
+    
+    $ pip --version
+如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是ｐｉｐ是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
 
+### 可选１：IDE自动安装依赖包
+我本机的python IDE是PyCharm，非常强大的ＩＤＥ，打开keystone代码目录后，Pycharm能识别自动requirements.txt，并提示是否导入依赖，选择是后，Pycharm列出依赖包，确认后开始自动安装。唯一麻烦的是，Pycharm是以工作用户运行的，安装依赖需要用ｒｏｏｔ权限执行python，所以经常需要sudo密码。Pycharm使用的python版本是默认的（我本机Python2.7），安装的依赖包放在Python的dist-packages目录下，注意：
 
+    sudo apt-get install 安装的package存放在 /usr/lib/python2.7/dist-packages目录中
+    pip 或者 easy_install安装的package存放在/usr/local/lib/python2.7/dist-packages目录中
+    手动从源代码安装的package存放在site-packages目录中
+
+我本机的/usr/local/lib/python2.7/dist-packages在安装依赖前只有pip和wheel，现在已经有非常多的package。
+这种方法的缺点是依赖了ＩＤＥ，如果是在开发环境，这种方法很方便，很省心。 如果开发环境和生产环境是同一个系统的话，可以把dist-packages目录下的package拷贝过去。
+
+### 可选2: pip安装依赖包到指定目录
