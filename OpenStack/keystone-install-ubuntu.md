@@ -33,7 +33,7 @@
     > \# apt install mariadb-server python-pymysql
 
 2. 配置Mysql
-    > \# vim /etc/mysql/mariadb.conf.d/99-openstack.cnf
+    > \# vi /etc/mysql/mariadb.conf.d/99-openstack.cnf
     
     在文件中创建下面这一节，并把bind-address替换成本机真实ＩＰ。
     
@@ -77,9 +77,9 @@
 
 注意: 'KEYSTONE_DBPASS'需要替换成合适的密码。
 
-4. 退出Ｍｙｓｑｌ客户端
+4. 退出Mysql客户端
 
-### 安装ｋｅｙｓｔｏｎｅ软件包
+### 安装keystone软件包
 Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeystone默认监听５０００和３５３５７两个端口。
 
 1. 安装keystone和Apache2软件包
@@ -89,7 +89,7 @@ Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeysto
 ### 配置keystone
 １. 打开keystone.conf
 
-    # vim /etc/keystone/keystone.conf
+    # vi /etc/keystone/keystone.conf
 
 ２. 修改database配置
     搜索\[database，将默认的配置注释，替换成下面的内容
@@ -160,7 +160,7 @@ Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeysto
 | whitelisted_config     |
 +------------------------+
 
-然后往Ｋｅｙｓｔｏｎｅ中插入初始化数据
+然后往keystone中插入初始化数据
  
     # keystone-manage bootstrap --bootstrap-password ADMIN_PASS \
     --bootstrap-admin-url http://controller:35357/v3/ \
@@ -190,11 +190,11 @@ bootstrap过程中往keystone的表中插入了一些数据，例如Default doma
 keystone安装完成后，可以使用OpenStack Client调用，测试keystone是否正常运行。
 调用OpenStack Client前，需要先设置环境变量。
 
-在本地创建一个rc文件，使用OpenStack Client前将rc加载到环境变量中。 此处可以用非ｒｏｏｔ用户执行。
+在本地创建一个rc文件，使用OpenStack Client前将rc加载到环境变量中。 此处可以用非root用户执行。
 
     $ vim ~/openstack-cli.rc
     
-输入下面内容，其中controller需要替换成本机ＩＰ地址，　ＡＤＭＩＮ_PASS需要替换成自定义的密码。
+输入下面内容，其中controller需要替换成本机IP地址，　ADMIN_PASS需要替换成自定义的密码。
 
     export OS_USERNAME=admin
     export OS_PASSWORD=ADMIN_PASS
@@ -207,6 +207,6 @@ keystone安装完成后，可以使用OpenStack Client调用，测试keystone是
     $ source openstack-cli.rc
     $ openstack token issue
     
-返回token，则说明Ｋｅｙｓｔｏｎｅ可以正常运行！
+返回token，则说明keystone可以正常运行！
 
   
