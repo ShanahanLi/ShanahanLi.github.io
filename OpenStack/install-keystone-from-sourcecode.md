@@ -14,6 +14,9 @@
 
     $ sudo apt-get install apache2 libapache2-mod-wsgi
 
+## 安装Mysql
+参考上一篇文章[如何在Ubuntu上安装Keystone](./keystone-install-ubuntu.md)。非root用户可以将命令调整为 sudo apt-get install ...
+
 ## 安装keystone
 ### setup.py
 在keystone的目录下，有个setup.py，setup.py是python用来打包和发布程序或者库的工具。关于setup.py的介绍在百度上可以搜索到很多，这里不再赘述。Keystone的setup.py文件特别简单：
@@ -138,3 +141,51 @@ pip是Python的包管理程序，python3默认自带pip，通过命令可以检�
 scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: No such file or directory
 
     $ sudo apt-get install libssl-dev
+安装完成后，再执行keystone-manage就不会包依赖错误了。
+
+## 配置Keystone
+### 创建keystone的数据库
+参考上一篇文章[如何在Ubuntu上安装Keystone](./keystone-install-ubuntu.md)。
+
+### 创建配置目录
+进入keystone源码的etc目录，执行下面的命令：
+
+    $ sudo mkdir -p /etc/keystone
+    $ sudo mv keystone.conf.sample /etc/keystone/keystone.conf
+    $ sudo mv logging.conf.sample /etc/keystone/logging.conf
+    
+### 配置keystone.conf
+在/etc/keystone目录下打开keystone.conf。
+1. 修改database配置。搜索\[database，将默认的配置注释，替换成下面的内容：
+
+    [database]  
+    connection = mysql+pymysql://keystone:KEYSTONE_DBPASS@controller/keystone
+注意KEYSTONE_DBPASS替换为创建keystone数据库实例的密码，controller替换成本机的IP地址。
+2. 修改token生成方式
+搜索\[token，将默认的配置注释，社区的安装指南是要求用fernet token，但是我需要用到pki token，所以设置为pki。
+
+   [token]
+   provider = pki
+   
+## 配置Apache2
+部分内容可参考博客：http://www.cnblogs.com/Security-Darren/p/4458728.html
+配置Apache在启动的时候加载Keystone,将Keystone源码下的httpd/wsgi-keystone.conf复制到/etc/apache2/conf-available/，然后在/etc/apache2/conf-enabled/目录中创建一个指向/etc/apache2/conf-available/wsgi-keystone.conf的同名软链接:
+
+    $ sudo cp ./httpd/wsgi-keystone.conf /etc/apache2/conf-available/
+    $ cd /etc/apache2/conf-enabled/
+    $ sudo ln -s /etc/apache2/conf-available/wsgi-keystone.conf wsgi-keystone.conf
+
+目前版本的wsgi-keystone.conf文件，除了启动服务的用户从"keystone"修改为真实的用户外，其他不用修改可直接使用。修改后重启apache2，查看进程，可看到keystone已经运行!
+
+    $ service apache2 restart
+    $ ps -ef|grep keystone
+    keystone+ 22592 22589  0 13:21 ?        00:00:00 (wsgi:keystone-pu -k start
+    keystone+ 22593 22589  0 13:21 ?        00:00:00 (wsgi:keystone-pu -k start
+    keystone+ 22594 22589  0 13:21 ?        00:00:00 (wsgi:keystone-pu -k start
+    keystone+ 22595 22589  0 13:21 ?        00:00:00 (wsgi:keystone-pu -k start
+    keystone+ 22596 22589  0 13:21 ?        00:00:00 (wsgi:keystone-pu -k start
+    keystone+ 22597 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
+    keystone+ 22598 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
+    keystone+ 22599 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
+    keystone+ 22600 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
+    keystone+ 22601 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
