@@ -189,3 +189,24 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
     keystone+ 22599 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
     keystone+ 22600 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
     keystone+ 22601 22589  0 13:21 ?        00:00:00 (wsgi:keystone-ad -k start
+
+## 装载数据
+### keystone建表
+执行keystone-manage命令：
+
+    $ keystone-manage db_sync
+命令执行成功后，进入Mysql，可以看到所有表都已经创建成功。表都是空的，还没有插入初始化数据。
+
+    $ sudo mysql
+    MariaDB [(none)]> use keystone;
+    MariaDB [keystone]> show tables;
+    
+### 初始化数据
+执行keystone-manage的bootstrap命令，完成初始化的用户导入：
+
+    # keystone-manage bootstrap --bootstrap-password ADMIN_PASS \
+    --bootstrap-admin-url http://controller:35357/v3/ \
+    --bootstrap-internal-url http://controller:5000/v3/ \
+    --bootstrap-public-url http://controller:5000/v3/ \
+    --bootstrap-region-id RegionOne
+注意，命令中的controller需要替换成本机IP地址，　ADMIN_PASS需要替换成自定义的密码。 bootstrap过程中往keystone的表中插入了一些数据，例如Default domain, admin project。
