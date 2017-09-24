@@ -15,12 +15,6 @@
     $ sudo apt-get install apache2 libapache2-mod-wsgi
 
 ## 安装keystone
-### 关于pip
-pip是Python的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
-    
-    $ pip --version
-如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是pip是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
-
 ### setup.py
 在keystone的目录下，有个setup.py，setup.py是python用来打包和发布程序或者库的工具。关于setup.py的介绍在百度上可以搜索到很多，这里不再赘述。Keystone的setup.py文件特别简单：
 
@@ -29,7 +23,7 @@ pip是Python的包管理程序，python3默认自带pip，通过命令可以检�
     setuptools.setup(
         setup_requires=['pbr>=2.0.0'],
         pbr=True)
-常见的第三方库的setup.py一般都name,version,description,packages,requires,install_requires等参数，但keystone的setup.py仅仅引入了pbr。keystone目录下还有一个setup.cfg，setup.cfg提供setup.py的默认参数，setup.py先解析setup.cfg文件，然后执行相关命令。setup.py和setup.cfg都是遵循python标准库中的Distutils，而setuptools工具针对Python官方的distutils做了很多针对性的功能增强，比如依赖检查，动态扩展等。pbr是setuptools的辅助工具，最初是为OpenStack开发(https://launchpad.net/pbr)，pbr最重要的功能是读取keystone目录下的requirements.txt文件，生成setup函数需要的install_requires/tests_require/dependency_links。
+常见的第三方库的setup.py一般都name,version,description,packages,requires,install_requires等参数，但keystone的setup.py仅仅引入了pbr。keystone目录下还有一个setup.cfg，setup.cfg提供setup.py的默认参数，setup.py先解析setup.cfg文件，然后执行相关命令。setup.py和setup.cfg都是遵循python标准库中的Distutils，而setuptools工具针对Python官方的distutils做了很多针对性的功能增强，比如依赖检查，动态扩展等。pbr是setuptools的辅助工具，由OpenStack开发，pbr最重要的功能是读取keystone目录下的requirements.txt文件，生成setup函数需要的install_requires/tests_require/dependency_links。
 Keystone的requirements.txt内容如下：
 
     # The order of packages is significant, because pip processes them in the order
@@ -74,3 +68,73 @@ Keystone的requirements.txt内容如下：
     msgpack-python>=0.4.0 # Apache-2.0
     osprofiler>=1.4.0 # Apache-2.0
     pytz>=2013.6 # MIT
+
+### 安装keystone
+在keystone目录下，执行setup.py的install命令：
+
+    $ sudo python setup.py install
+随着大量屏幕输出，几秒后，打屏显示安装成功。
+
+    Installed /home/lishanhang/keystone/.eggs/pbr-3.1.1-py2.7.egg
+    [pbr] Generating ChangeLog
+    running install
+    [pbr] Writing ChangeLog
+    [pbr] Generating ChangeLog
+    [pbr] ChangeLog complete (0.5s)
+    [pbr] Generating AUTHORS
+    [pbr] AUTHORS complete (1.0s)
+    running build
+    running build_py
+    creating build
+    creating build/lib.linux-i686-2.7
+    creating build/lib.linux-i686-2.7/keystone
+    ... ...
+    running egg_info
+    creating keystone.egg-info
+    writing pbr to keystone.egg-info/pbr.json
+    writing requirements to keystone.egg-info/requires.txt
+    writing keystone.egg-info/PKG-INFO
+    writing top-level names to keystone.egg-info/top_level.txt
+    writing dependency_links to keystone.egg-info/dependency_links.txt
+    writing entry points to keystone.egg-info/entry_points.txt
+    [pbr] Processing SOURCES.txt
+    writing manifest file 'keystone.egg-info/SOURCES.txt'
+    [pbr] In git context, generating filelist from git
+    warning: no previously-included files matching '*.pyc' found anywhere in distribution
+    writing manifest file 'keystone.egg-info/SOURCES.txt'
+    ... ...
+    running install_lib
+    creating /usr/local/lib/python2.7/dist-packages/keystone
+    ... ...
+    byte-compiling /usr/local/lib/python2.7/dist-packages/keystone/revoke/routers.py to routers.pyc
+    byte-compiling /usr/local/lib/python2.7/dist-packages/keystone/revoke/__init__.py to __init__.pyc
+    byte-compiling /usr/local/lib/python2.7/dist-packages/keystone/revoke/backends/base.py to base.pyc
+    ... ...
+    running install_egg_info
+    Copying keystone.egg-info to /usr/local/lib/python2.7/dist-packages/keystone-12.0.0.0rc2.dev62-py2.7.egg-info
+    running install_scripts
+    Installing keystone-wsgi-admin script to /usr/local/bin
+    Installing keystone-wsgi-public script to /usr/local/bin
+    Installing keystone-manage script to /usr/local/bin
+安装完成后，keystone的package已经加入到python发布包目录/usr/local/lib/python2.7/dist-packages，可被其他python库引用。keystone-wsgi-admin, keystone-wsgi-public, keystone-manage三个脚本安装到/usr/local/bin目录下。
+但是在/usr/local/lib/python2.7/dist-packages中并没有看到keystone的第三方库安装进来，执行keystone-manage会报依赖找不到的异常。
+
+### 安装pip
+pip是Python的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
+    
+    $ pip --version
+如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是pip是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
+
+### 安装Keystone依赖包
+通过在pip install的命令安装依赖包，安装的依赖包放在Python的dist-packages目录下，注意：sudo apt-get install 安装的package存放在 /usr/lib/python2.7/dist-packages目录中；pip 或者 easy_install安装的package存放在/usr/local/lib/python2.7/dist-packages目录中；手动从源代码安装的package存放在site-packages目录中。
+前面也提到了，keystone的依赖包定义在requirements.txt文件中，先进入到keystone源码目录，通过下面的命令安装：
+
+    $ sudo pip install -r requirements.txt
+安装过程中也不是一帆风顺，编译scrypt时报编译错误,可以通过下面的命令解决：
+
+"src/scrypt.c:27:20: fatal error: Python.h: No such file or directory"，
+
+    $ sudo apt-get install python-dev
+scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: No such file or directory
+
+    $ sudo apt-get install libssl-dev
