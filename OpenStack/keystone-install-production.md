@@ -75,10 +75,10 @@
 
 ## 安装依赖包
 ### 关于pip
-pip是Ｐｙｔｈｏｎ的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
+pip是python的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
     
     $ pip --version
-如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是ｐｉｐ是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
+如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是pip是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
 
 ### 可选１：IDE自动安装依赖包
 我本机的python IDE是PyCharm，非常强大的ＩＤＥ，打开keystone代码目录后，Pycharm能识别自动requirements.txt，并提示是否导入依赖，选择是后，Pycharm列出依赖包，确认后开始自动安装。唯一麻烦的是，Pycharm是以工作用户运行的，安装依赖需要用ｒｏｏｔ权限执行python，所以经常需要sudo密码。Pycharm使用的python版本是默认的（我本机Python2.7），安装的依赖包放在Python的dist-packages目录下，注意：
