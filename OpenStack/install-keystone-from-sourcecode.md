@@ -151,8 +151,8 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
 进入keystone源码的etc目录，执行下面的命令：
 
     $ sudo mkdir -p /etc/keystone
-    $ sudo mv keystone.conf.sample /etc/keystone/keystone.conf
-    $ sudo mv logging.conf.sample /etc/keystone/logging.conf
+    $ sudo cp keystone.conf.sample /etc/keystone/keystone.conf
+    $ sudo cp logging.conf.sample /etc/keystone/logging.conf
     
 ### 配置keystone.conf
 在/etc/keystone目录下打开keystone.conf。
