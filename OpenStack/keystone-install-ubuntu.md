@@ -35,7 +35,7 @@
 2. 配置Mysql
     > \# vi /etc/mysql/mariadb.conf.d/99-openstack.cnf
     
-    在文件中创建下面这一节，并把bind-address替换成本机真实ＩＰ。
+    在文件中创建下面这一节，并把bind-address替换成本机真实IP。
     
 '''
 
@@ -48,7 +48,7 @@
     character-set-server = utf8
 '''
 
-3. 重启ＭｙＳＱＬ，并进行安全设置
+3. 重启Mysql，并进行安全设置
 
     > \# service mysql restart
     
@@ -112,53 +112,11 @@ Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeysto
 
     # su -s /bin/sh -c "keystone-manage db_sync" keystone
     
-执行完成后，可以进入Ｍｙｓｑｌ查看keystone库里的表已经创建出来。
+执行完成后，可以进入Mysql查看keystone库里的表已经创建出来。
 
     # mysql
     MariaDB [(none)]> use keystone;
     MariaDB [keystone]> show tables;
-    
-+------------------------+
-| Tables_in_keystone     |
-+------------------------+
-| access_token           |
-| assignment             |
-| config_register        |
-| consumer               |
-| credential             |
-| domain                 |
-| endpoint               |
-| endpoint_group         |
-| federated_user         |
-| federation_protocol    |
-| group                  |
-| id_mapping             |
-| identity_provider      |
-| idp_remote_ids         |
-| implied_role           |
-| local_user             |
-| mapping                |
-| migrate_version        |
-| password               |
-| policy                 |
-| policy_association     |
-| project                |
-| project_endpoint       |
-| project_endpoint_group |
-| region                 |
-| request_token          |
-| revocation_event       |
-| role                   |
-| sensitive_config       |
-| service                |
-| service_provider       |
-| token                  |
-| trust                  |
-| trust_role             |
-| user                   |
-| user_group_membership  |
-| whitelisted_config     |
-+------------------------+
 
 然后往keystone中插入初始化数据
  
@@ -168,7 +126,7 @@ Keystone运行在Apache的容器中，并且以来Apache的wsgi模块，Ｋeysto
     --bootstrap-public-url http://controller:5000/v3/ \
     --bootstrap-region-id RegionOne
     
-注意，命令中的controller需要替换成本机ＩＰ地址，　ＡＤＭＩＮ_PASS需要替换成自定义的密码。
+注意，命令中的controller需要替换成本机IP地址，　ADMIN_PASS需要替换成自定义的密码。
 bootstrap过程中往keystone的表中插入了一些数据，例如Default domain, admin project。
   
 ## 配置Apache HTTP Server
