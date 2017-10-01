@@ -152,6 +152,7 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
 
     $ sudo mkdir -p /etc/keystone
     $ sudo cp keystone.conf.sample /etc/keystone/keystone.conf
+    $ sudo cp keystone-paste.ini /etc/keystone/keystone-paste.ini
     $ sudo cp logging.conf.sample /etc/keystone/logging.conf
     
 ### 配置keystone.conf
@@ -210,3 +211,12 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
     --bootstrap-public-url http://controller:5000/v3/ \
     --bootstrap-region-id RegionOne
 注意，命令中的controller需要替换成本机IP地址，　ADMIN_PASS需要替换成自定义的密码。 bootstrap过程中往keystone的表中插入了一些数据，例如Default domain, admin project。
+
+## 
+zai liulanqi shang shuru http://localhost:5000/v3 bao 500 neibu cuowu, dakai /var/log/apache2/keystone.log faxian
+    ContextualVersionConflict: (pika 0.11.0 (/usr/local/lib/python2.7/dist-packages), Requirement.parse('pika<0.11,>=0.9'), set(['pika-pool']))
+
+jinru dao /usr/local/lib/python2.7/dist-packages mulu,guoran pika banbenhao shi 0.11, tongg pip mingling anzhuang 0.10banben
+
+    $ sudo pip install pika==0.10
+anzhuang wancheng hou yuanlaide 0.11banben bei fugai,zhisheng 0.10banben
