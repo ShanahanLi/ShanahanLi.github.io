@@ -212,11 +212,16 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
     --bootstrap-region-id RegionOne
 注意，命令中的controller需要替换成本机IP地址，　ADMIN_PASS需要替换成自定义的密码。 bootstrap过程中往keystone的表中插入了一些数据，例如Default domain, admin project。
 
-## 
-zai liulanqi shang shuru http://localhost:5000/v3 bao 500 neibu cuowu, dakai /var/log/apache2/keystone.log faxian
-    ContextualVersionConflict: (pika 0.11.0 (/usr/local/lib/python2.7/dist-packages), Requirement.parse('pika<0.11,>=0.9'), set(['pika-pool']))
+## 验证
+在浏览器上输入http://controller:5000/v3 错误，打开/var/log/apache2/keystone.log发现错误信息：
 
-jinru dao /usr/local/lib/python2.7/dist-packages mulu,guoran pika banbenhao shi 0.11, tongg pip mingling anzhuang 0.10banben
+    ContextualVersionConflict: (pika 0.11.0 (/usr/local/lib/python2.7/dist-packages), Requirement.parse('pika<0.11,>=0.9'), set(['pika-pool']))
+进入到/usr/local/lib/python2.7/dist-packages目录，果然pika版本号是0.11，通过pip命令安装0.10版本。
 
     $ sudo pip install pika==0.10
-anzhuang wancheng hou yuanlaide 0.11banben bei fugai,zhisheng 0.10banben
+安装完成后，原来的0.11版本会被0.10版本覆盖。重启Apache2，再次访问http://controller:5000/v3 ，已经能正常访问。
+
+    {"version": {"status": "stable", "updated": "2017-02-22T00:00:00Z", "media-types": [{"base": "application/json", "type": "application/vnd.openstack.identity-v3+json"}], "id": "v3.8", "links": [{"href": "http://localhost:5000/v3/", "rel": "self"}]}}
+
+
+
