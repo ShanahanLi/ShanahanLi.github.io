@@ -222,6 +222,6 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
 安装完成后，原来的0.11版本会被0.10版本覆盖。重启Apache2，再次访问http://controller:5000/v3 ，已经能正常访问。
 
     {"version": {"status": "stable", "updated": "2017-02-22T00:00:00Z", "media-types": [{"base": "application/json", "type": "application/vnd.openstack.identity-v3+json"}], "id": "v3.8", "links": [{"href": "http://localhost:5000/v3/", "rel": "self"}]}}
-
-
+然后调用POST /v3/auth/tokens，可以返回token，说明keystone已经正常运行。
+![](image/2017-10-01-19-48.png)
 
