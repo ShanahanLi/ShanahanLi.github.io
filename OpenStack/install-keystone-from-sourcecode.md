@@ -18,6 +18,12 @@
 参考上一篇文章[如何在Ubuntu上安装Keystone](./keystone-install-ubuntu.md)。非root用户可以将命令调整为 sudo apt-get install ...
 
 ## 安装keystone
+### 安装pip
+pip是Python的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
+    
+    $ pip --version
+如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是pip是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
+
 ### setup.py
 在keystone的目录下，有个setup.py，setup.py是python用来打包和发布程序或者库的工具。关于setup.py的介绍在百度上可以搜索到很多，这里不再赘述。Keystone的setup.py文件特别简单：
 
@@ -121,12 +127,6 @@ Keystone的requirements.txt内容如下：
     Installing keystone-manage script to /usr/local/bin
 安装完成后，keystone的package已经加入到python发布包目录/usr/local/lib/python2.7/dist-packages，可被其他python库引用。keystone-wsgi-admin, keystone-wsgi-public, keystone-manage三个脚本安装到/usr/local/bin目录下。
 但是在/usr/local/lib/python2.7/dist-packages中并没有看到keystone的第三方库安装进来，执行keystone-manage会报依赖找不到的异常。
-
-### 安装pip
-pip是Python的包管理程序，python3默认自带pip，通过命令可以检查是否已安排pip
-    
-    $ pip --version
-如果操作系统安装了多个版本的Python，还需要核实pip是否关联到了你使用的Python版本。我本机Ubuntu 16.04 LTS自带了python2.7和python3.5，默认使用python2.7，但是pip是关联到Ｐython3.5，所以我重新了安装pip，安装pip可参考[pip官网](https://pip.pypa.io/en/stable/)的安装指南。
 
 ### 安装Keystone依赖包
 通过在pip install的命令安装依赖包，安装的依赖包放在Python的dist-packages目录下，注意：sudo apt-get install 安装的package存放在 /usr/lib/python2.7/dist-packages目录中；pip 或者 easy_install安装的package存放在/usr/local/lib/python2.7/dist-packages目录中；手动从源代码安装的package存放在site-packages目录中。
