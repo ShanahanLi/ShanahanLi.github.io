@@ -29,9 +29,9 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
     $ python setup.py install
 通过屏幕输出可以看到keystone已经安装到~/keystone-prod/venv/lib/python2.7/site-packages下,keystone-wsgi-admin,keystone-wsgi-public,keystone-manage安装在~/keystone-prod/venv/bin目录下。
 
-## 安装Apache2
+## Apache2安装和配置
 为了让Apache2也可以移植，因此需要从源码编译安装Apache2。从[Apache2 Download](http://httpd.apache.org/download.cgi)源码，然后编译安装。
-### 编译Apache2
+### 编译安装Apache2
 将源码目录下载在~/keystone-prod目录下。
 
     $ cd ～/keystone-prod/httpd-2.4.27
@@ -48,5 +48,14 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
     ServerName 192.168.1.103:8888
 执行～/keystone-prod/Apache2/bin/apachectl -k start 命令，启动Apache2。在浏览器中输入 htp://192.168.1.103:8888/，显示 It works! 说明Apache2安装成功。
 
+### 安装mod-wsgi
+下载mod-wsgi源码，地址https://pypi.python.org/pypi/mod_wsgi ，pypi上有很详细的安装指南。
+mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develop/index.html 。
+源码下载至~/keystone-prod目录。安装mod-wsgi时需要使用启动virtualenv。
 
+    $ tar xvf mod_wsgi-4.5.19.tar.gz
+    $ rm mod_wsgi-4.5.19.tar.gz
+    $ cd mod_wsgi-4.5.19
+    $ source ../venv/bin/activate
+    (venv)$ python setup.py install
     
