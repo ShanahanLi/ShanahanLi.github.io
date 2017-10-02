@@ -163,10 +163,10 @@ scrypt-1.2.0/libcperciva/crypto/crypto_aes.c:6:25: fatal error: openssl/aes.h: N
     connection = mysql+pymysql://keystone:KEYSTONE_DBPASS@controller/keystone
 注意KEYSTONE_DBPASS替换为创建keystone数据库实例的密码，controller替换成本机的IP地址。
 2. 修改token生成方式
-搜索\[token，将默认的配置注释，社区的安装指南是要求用fernet token，但是我需要用到pki token，所以设置为pki。
+搜索\[token，将默认的配置注释，社区的安装指南是要求用fernet token，为了简化操作，先用uuid，后面再调整为fernet。
 
    [token]
-   provider = pki
+   provider = uuid
    
 ## 配置Apache2
 部分内容可参考博客：http://www.cnblogs.com/Security-Darren/p/4458728.html
