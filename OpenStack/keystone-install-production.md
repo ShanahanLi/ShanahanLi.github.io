@@ -30,6 +30,23 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
 通过屏幕输出可以看到keystone已经安装到~/keystone-prod/venv/lib/python2.7/site-packages下,keystone-wsgi-admin,keystone-wsgi-public,keystone-manage安装在~/keystone-prod/venv/bin目录下。
 
 ## 安装Apache2
-为了让Apache2也可以移植，因此需要从源码编译安装Apache2。从[Apache2 Download](http://httpd.apache.org/download.cgi)源码。然后编译安装：
+为了让Apache2也可以移植，因此需要从源码编译安装Apache2。从[Apache2 Download](http://httpd.apache.org/download.cgi)源码，然后编译安装。
+### 编译Apache2
+将源码目录下载在~/keystone-prod目录下。
+
+    $ cd ～/keystone-prod/httpd-2.4.27
+    $ sudo apt-get install libapr1-dev libaprutil1-dev
+    $ sudo apt-get install libpcre3-dev
+    $ ./configure --prefix=～/keystone-prod/Apache2
+    $ make
+    $ make install
+编译安装完成，--prefix指定了安装的位置。
+进入～/keystone-prod/Apache2/conf/httpd.conf，修改监听端口号为8888（本机80端口已被占用），以及ServerName为本机IP。
+
+    Listen 8888
+    
+    ServerName 192.168.1.103:8888
+执行～/keystone-prod/Apache2/bin/apachectl -k start 命令，启动Apache2。在浏览器中输入 htp://192.168.1.103:8888/，显示 It works! 说明Apache2安装成功。
+
 
     
