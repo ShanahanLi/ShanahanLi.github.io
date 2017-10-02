@@ -29,4 +29,7 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
     $ python setup.py install
 通过屏幕输出可以看到keystone已经安装到~/keystone-prod/venv/lib/python2.7/site-packages下,keystone-wsgi-admin,keystone-wsgi-public,keystone-manage安装在~/keystone-prod/venv/bin目录下。
 
-### 运行Keystone
+## 安装Apache2
+为了让Apache2也可以移植，因此需要从源码编译安装Apache2。从[Apache2 Download](http://httpd.apache.org/download.cgi)源码。然后编译安装：
+
+    
