@@ -101,18 +101,16 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
 ### 安装keystone的启动环境
     $ cd ~/keystone-prod
     $ source ./venv/bin/activate
-    (venv)$ mod_wsgi-express setup-server ./keystone/keystone/server/wsgi.py \
-    --host 192.168.1.103 --port 5000 --user lishanhang --group lishanhang \
-    --server-root=./etc/mod_wsgi-express-5000 \
-    --setenv OS_KEYSTONE_CONFIG_DIR /home/lishanhang/keystone-prod/etc/keystone
-    
+    (venv)$ mod_wsgi-express setup-server ~/keystone-prod/venv/bin/keystone-wsgi-public \
+    --host 192.168.1.103 --port 5000 --user keystone --group keystone --server-root=./etc/mod_wsgi-express-5000 \
+    --setenv OS_KEYSTONE_CONFIG_DIR ~/keystone-prod/etc/keystone
     Server URL         : http://192.168.1.103:5000/
-    Server Root        : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000
-    Server Conf        : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/httpd.conf
-    Error Log File     : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/error_log (warn)
-    Rewrite Rules      : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/rewrite.conf
-    Environ Variables  : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/envvars
-    Control Script     : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/apachectl
+    Server Root        : ~/keystone-prod/etc/mod_wsgi-express-5000
+    Server Conf        : ~/keystone-prod/etc/mod_wsgi-express-5000/httpd.conf
+    Error Log File     : ~/keystone-prod/etc/mod_wsgi-express-5000/error_log (warn)
+    Rewrite Rules      : ~/keystone-prod/etc/mod_wsgi-express-5000/rewrite.conf
+    Environ Variables  : ~/keystone-prod/etc/mod_wsgi-express-5000/envvars
+    Control Script     : ~/keystone-prod/etc/mod_wsgi-express-5000/apachectl
     Request Capacity   : 5 (1 process * 5 threads)
     Request Timeout    : 60 (seconds)
     Startup Timeout    : 15 (seconds)
@@ -121,3 +119,39 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     Server Capacity    : 20 (event/worker), 20 (prefork)
     Server Backlog     : 500 (connections)
     Locale Setting     : zh_CN.UTF-8
+
+    (venv)$ ./etc/mod_wsgi-express-5000/apachectl start
+在浏览器中输入http://192.168.1.103:5000/v3，报500错误，进入./etc/mod_wsgi-express-5000/error_log，发现仍然是包依赖冲突：ContextualVersionConflict: (pika 0.11.0 (/home/lishanhang/keystone-prod/venv/lib/python2.7/site-packages), Requirement.parse('pika<0.11,>=0.9'), set(['pika-pool']))。
+
+    (venv)$ pip install pika==0.10
+再次访问http://192.168.1.103:5000/v3，成功！
+但是执行POST /v3/auth/tokens，仍然报500错误，查看错误日志，是pymysql module找不到。
+
+    (venv)$ pip install pymysql
+再次执行POST /v3/auth/tokens，成功返回token！
+
+## 移植
+作为可以发布的产品，必须要具有可移植的能力。前面的操作步骤中，已经将keystone及运行环境都安装在keystone-prod目录下。为了让这个目录具有可移植，我们还需要完成一些步骤。
+
+### 移除编译源码
+    $ rm -R httpd-2.4.27/
+    $ rm -R mod_wsgi-4.5.19/
+    $ rm -R keystone/
+    
+./etc/mod_wsgi-express-5000目录是mod_wsgi-express运行后生成的，很多文件中写入来绝对路径和IP以及端口号，不具备移植性，也应该删除。
+
+    $ rm -R ./etc/mod_wsgi-express-5000/
+### 安装脚本
+在~/keystone-prod目录下创建init目录，用来存放初始化安装脚本。
+    
+    $ cd ~/keystone-prod
+    $ mkdir init
+    $ vi ./init/bootstrap.sh
+脚本内容如下：
+
+'''
+    
+'''
+
+
+
