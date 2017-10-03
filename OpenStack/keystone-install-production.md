@@ -173,7 +173,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
  
 ```
 ### 起停脚本
-在~/keystone-prod目录下创建bin目录，用来存放起停脚本以及日运维脚本。
+在~/keystone-prod目录下创建bin目录，用来存放起停脚本以及日常运维脚本。
 
     $ cd ~/keystone-prod
     $ mkdir bin
@@ -197,6 +197,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     $cmd
 ```
 服务停止脚本：
+
     $ vi ./bin/stop.sh
 脚本内容如下：
 ```shell
@@ -215,3 +216,13 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     cmd=$server_root"/apachectl stop"
     $cmd
 ```
+### 移植到应用目录
+    $ sudo cp -R keystone-prod/ /opt
+    $ chmod -R 755 /opt/keystone-prod
+    $ cd /opt/keystone-prod
+    $ ./init/bootstrap.sh 192.168.1.103 5000 keystone keystone
+    $ ./bin/start.sh
+POST /v3/auth/tokens, 成功！
+
+## 总结
+至此，我拥有了一个可以在任意Ubuntu 16.04 LTS操作系统上任意移植的Keystone运行环境。唯一没有实现的就是mysql的移植，不过应用和数据库一般都是分离的，在真实产品环境中，bootstrap.sh还需要支持将数据库连接信息写入keystone.conf，以及生成fernet token需要的密钥。
