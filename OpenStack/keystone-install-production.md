@@ -18,16 +18,12 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
 命令virtualenv可以创建一个独立的Python运行环境，加上参数--no-site-packages，这样，已经安装到系统Python环境中的所有第三方包都不会复制过来，这样就得到了一个不带任何第三方包的“干净”的Python运行环境。
 
     $ cd ~/keystone-prod
+    $ cp -R ../keystone ./
     $ source venv/bin/activate             
     (venv)$ cd ~/keystone
     (venv)$ pip install -r requirements.txt
 执行virtualenv的activate命令后，所有命令行都带有venv前缀（即虚拟环境）。pip安装的依赖包在~/keystone-prod/venv/lib/python2.7/site-packages下。
 需要格外注意的是，一定要用当前工作用户来执行pip，不能用sudo，否则安装的package仍然是系统环境python下的。
-
-### 安装keystone
-    $ cd ~/keystone
-    $ python setup.py install
-通过屏幕输出可以看到keystone已经安装到~/keystone-prod/venv/lib/python2.7/site-packages下,keystone-wsgi-admin,keystone-wsgi-public,keystone-manage安装在~/keystone-prod/venv/bin目录下。
 
 ## Apache2安装和配置
 为了让Apache2也可以移植，因此需要从源码编译安装Apache2。从[Apache2 Download](http://httpd.apache.org/download.cgi)源码，然后编译安装。
@@ -40,8 +36,8 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
     $ ./configure --prefix=～/keystone-prod/Apache2
     $ make
     $ make install
-编译安装完成，--prefix指定了安装的位置。
-进入～/keystone-prod/Apache2/conf/httpd.conf，修改监听端口号为8888（本机80端口已被占用），以及ServerName为本机IP。
+编译安装完成，--prefix指定了安装的位置，执行时请修改为绝对路径。
+进入～/keystone-prod/Apache2/conf/httpd.conf，修改监听端口号为8888（本机80端口需要root用户），以及ServerName为本机IP。
 
     Listen 8888
     
@@ -57,5 +53,55 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     $ rm mod_wsgi-4.5.19.tar.gz
     $ cd mod_wsgi-4.5.19
     $ source ../venv/bin/activate
+    (venv)$ export APXS=~/keystone-prod/Apache2/bin/apxs
     (venv)$ python setup.py install
+注意：APXS环境变量导出时要修改为绝对路径。
+安装完成后,mod-wsgi安装在~/keystone-prod/venv/lib/python2.7/site-packages/mod_wsgi-4.5.19-py2.7-linux-i686.egg。
+
+验证mod-wsgi是否正常安装，可以执行下面的命令：
+
+    (venv)$ mod_wsgi-express start-server
+    Server URL         : http://localhost:8000/
+    Server Root        : /tmp/mod_wsgi-localhost:8000:1000
+    Server Conf        : /tmp/mod_wsgi-localhost:8000:1000/httpd.conf
+    Error Log File     : /tmp/mod_wsgi-localhost:8000:1000/error_log (warn)
+    Request Capacity   : 5 (1 process * 5 threads)
+    Request Timeout    : 60 (seconds)
+    Startup Timeout    : 15 (seconds)
+    Queue Backlog      : 100 (connections)
+    Queue Timeout      : 45 (seconds)
+    Server Capacity    : 20 (event/worker), 20 (prefork)
+    Server Backlog     : 500 (connections)
+    Locale Setting     : zh_CN.UTF-8
+在浏览器中输入http://localhost:8000/ 显示一条装在酒瓶里的蛇的图片，以及“My web site runs on Malt Whiskey”，说明mod-wsgi安装成功！
+这种方式运行的mod-wsgi实际上是把Apache2在背后拉起，生成临时的配置文件。执行CTRL+C停止运行。
+
+## 运行keystone
+创建keystone配置文件。
+    $ cd ~/keystone-prod
+    $ mkdir -p ./etc/keystone
+    $ cp ./keystone/etc/keystone.conf.sample ./etc/keystone/keystone.conf
+    $ cp ./keystone/etc/keystone-paste.ini ./etc/keystone/
+
+    $ cd ~/keystone-prod
+    $ source ./venv/bin/activate
+    (venv)$ mod_wsgi-express setup-server ./keystone/keystone/server/wsgi.py \
+    --host 192.168.1.103 --port 5000 --user lishanhang --group lishanhang \
+    --server-root=./etc/mod_wsgi-express-5000 \
+    --setenv OS_KEYSTONE_CONFIG_DIR /home/lishanhang/keystone-prod/etc/keystone
     
+    Server URL         : http://192.168.1.103:5000/
+    Server Root        : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000
+    Server Conf        : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/httpd.conf
+    Error Log File     : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/error_log (warn)
+    Rewrite Rules      : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/rewrite.conf
+    Environ Variables  : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/envvars
+    Control Script     : /home/lishanhang/keystone-prod/etc/mod_wsgi-express-5000/apachectl
+    Request Capacity   : 5 (1 process * 5 threads)
+    Request Timeout    : 60 (seconds)
+    Startup Timeout    : 15 (seconds)
+    Queue Backlog      : 100 (connections)
+    Queue Timeout      : 45 (seconds)
+    Server Capacity    : 20 (event/worker), 20 (prefork)
+    Server Backlog     : 500 (connections)
+    Locale Setting     : zh_CN.UTF-8
