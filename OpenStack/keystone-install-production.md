@@ -77,12 +77,28 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
 这种方式运行的mod-wsgi实际上是把Apache2在背后拉起，生成临时的配置文件。执行CTRL+C停止运行。
 
 ## 运行keystone
-创建keystone配置文件。
+### 安装keystone
+    $ cd ~/keystone-prod
+    $ source ./venv/bin/activate
+    $ cd ./keystone
+    $ python setup.py install
+执行完成后，keystone的package被安装在~/keystone-prod/venv/lib/python2.7/site-packages/目录下。
+    
+### 创建keystone配置文件。
     $ cd ~/keystone-prod
     $ mkdir -p ./etc/keystone
     $ cp ./keystone/etc/keystone.conf.sample ./etc/keystone/keystone.conf
     $ cp ./keystone/etc/keystone-paste.ini ./etc/keystone/
+打开keystone.conf。修改database配置。搜索[database, 将默认的配置注释，替换成下面的内容：
 
+    [database]
+    connection = mysql+pymysql://keystone:KEYSTONE_DBPASS@controller/keystone 
+注意KEYSTONE_DBPASS替换为创建keystone数据库实例的密码，controller替换成本机的IP地址。
+修改token生成方式 搜索[token，将默认的配置注释，社区的安装指南是要求用fernet token，为了简化操作，先用uuid，后面再调整为fernet。
+
+    [token] provider = uuid
+
+### 安装keystone的启动环境
     $ cd ~/keystone-prod
     $ source ./venv/bin/activate
     (venv)$ mod_wsgi-express setup-server ./keystone/keystone/server/wsgi.py \
