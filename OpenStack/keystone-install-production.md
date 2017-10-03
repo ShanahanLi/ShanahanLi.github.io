@@ -148,10 +148,70 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     $ mkdir init
     $ vi ./init/bootstrap.sh
 脚本内容如下：
+```shell
+   #! /bin/sh
 
-'''
-    
-'''
+    WORK_HOME=$(pwd)
+    echo "The work directory is: $WORK_HOME"
 
+    PYTHON_HOME=$WORK_HOME"/venv/bin/"
+    echo "The PYTHON HOME is: $PYTHON_HOME"
+    export PATH=$PYTHON_HOME:$PATH
+    echo "The newest path is:$PATH"
 
+    keystone_wsgi_public_path=$PYTHON_HOME"keystone-wsgi-public"
+    server_root=$WORK_HOME"/etc/mod_wsgi-express"
+    keystone_conf_dir=$WORK_HOME"/etc/keystone"
 
+    ip=$1
+    port=$2
+    user=$3
+    group=$4
+
+    mod_wsgi-express setup-server $keystone_wsgi_public_path --host $ip --port $port --user $user --group $group \
+    --server-root=$server_root --setenv OS_KEYSTONE_CONFIG_DIR $keystone_conf_dir
+ 
+```
+### 起停脚本
+在~/keystone-prod目录下创建bin目录，用来存放起停脚本以及日运维脚本。
+
+    $ cd ~/keystone-prod
+    $ mkdir bin
+    $ vi ./bin/start.sh
+
+脚本内容如下：
+```shell
+    #! /bin/sh
+
+    WORK_HOME=$(pwd)
+    echo "The work directory is: $WORK_HOME" 
+
+    PYTHON_HOME=$WORK_HOME"/venv/bin"
+    export PATH=$PYTHON_HOME:$PATH
+    echo "The newest path is: $PYTHON_HOME"
+
+    server_root=$WORK_HOME"/etc/mod_wsgi-express"
+
+    #cmd
+    cmd=$server_root"/apachectl start"
+    $cmd
+```
+服务停止脚本：
+    $ vi ./bin/stop.sh
+脚本内容如下：
+```shell
+    #! /bin/sh
+
+    WORK_HOME=$(pwd)
+    echo "The work directory is: $WORK_HOME" 
+
+    PYTHON_HOME=$WORK_HOME"/venv/bin"
+    export PATH=$PYTHON_HOME:$PATH
+    echo "The newest path is: $PYTHON_HOME"
+
+    server_root=$WORK_HOME"/etc/mod_wsgi-express"
+
+    #cmd
+    cmd=$server_root"/apachectl stop"
+    $cmd
+```
