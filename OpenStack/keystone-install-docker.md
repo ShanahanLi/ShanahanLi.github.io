@@ -1,5 +1,5 @@
 # Keystone容器化
-## Ubuntu上安装docker
+## 安装docker
 我使用的操作系统是Ubuntu 16.04 LTS。
 
     $ uname -a
@@ -25,6 +25,36 @@
 
     $ sudo usermod -aG docker $USER
     
+## 制作镜像
+将上一部--[生产环境安装Keystone](keystone-install-production.md)中的keystone-prod拷贝一份到keystone-prod-docker。然后创建一份Dockerfile，来构建镜像。
+
+    $ cp -R keystone-prod keystone-prod-docker
+    $ cd keystone-prod-docker
+    $ touch Dockerfile
+编写Dockerfile，第一次制作docker镜像，照着介绍依葫芦画瓢。首先这份镜像不依赖任何镜像，所有运行过程中使用的库都已经打包在这个目录下。只需要将这个目录拷贝即可，第一次尝试build报错，提示"When using COPY with more than one source file, the destination must be a directory and end with a /"，好在docker的错误提示都很准确，没怎么费劲，我的Dockerfile就可以使用来。
+我的Dockerfile：
+```docker
+    FROM scratch
+
+    COPY * /opt/
+
+```
+编译命令如下，镜像构建上下文在当前目录，学着开源软件的通用做法，版本号设置为17.10。
+
+    $ docker build -t keystone-prod:17.10 .
+    Sending build context to Docker daemon 164.3 MB
+    Step 1 : FROM scratch
+     ---> 
+    Step 2 : COPY * /opt/
+     ---> 7771b6d18cd8
+    Removing intermediate container 6187aef1fe8d
+    Successfully built 7771b6d18cd8
+验证镜像是否成功构建：
+
+    $ docker images
+    REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+    keystone-prod       17.10               7771b6d18cd8        12 seconds ago      154.7 MB
+可以看到，keystone-prod在12秒前构建。
 
 
 ### 搭建GO语言环境
