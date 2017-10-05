@@ -168,10 +168,11 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     user=$3
     group=$4
 
-    mod_wsgi-express setup-server $keystone_wsgi_public_path --host $ip --port $port --user $user --group $group \
-    --server-root=$server_root --setenv OS_KEYSTONE_CONFIG_DIR $keystone_conf_dir
- 
+    cmd="python "$PYTHON_HOME"mod_wsgi-express setup-server "$keystone_wsgi_public_path" --host "$ip" --port "$port" --user "$user" --group "$group" --server-root="$server_root" --setenv OS_KEYSTONE_CONFIG_DIR "$keystone_conf_dir
+    $cmd
 ```
+注意：在virtualenv里编译安装的Python入口脚本，例如mod_wsgi-express和keystone-manage的脚本解释器(#!)都写上了python的全路径，无法直接移植，需要在bootstrap脚本中直接指定用python执行。
+
 ### 起停脚本
 在~/keystone-prod目录下创建bin目录，用来存放起停脚本以及日常运维脚本。
 
