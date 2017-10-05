@@ -149,7 +149,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     $ vi ./init/bootstrap.sh
 脚本内容如下：
 ```shell
-   #! /bin/sh
+    #! /bin/sh
 
     WORK_HOME=$(pwd)
     echo "The work directory is: $WORK_HOME"
@@ -158,6 +158,10 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     echo "The PYTHON HOME is: $PYTHON_HOME"
     export PATH=$PYTHON_HOME:$PATH
     echo "The newest path is:$PATH"
+
+    APACHE_HOME=$WORK_HOME"/Apache2"
+    APACHE_BIN=$APACHE_HOME"/bin/httpd"
+    APACHE_MODULE=$APACHE_HOME"/modules"
 
     keystone_wsgi_public_path=$PYTHON_HOME"keystone-wsgi-public"
     server_root=$WORK_HOME"/etc/mod_wsgi-express"
@@ -168,10 +172,12 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     user=$3
     group=$4
 
-    cmd="python "$PYTHON_HOME"mod_wsgi-express setup-server "$keystone_wsgi_public_path" --host "$ip" --port "$port" --user "$user" --group "$group" --server-root="$server_root" --setenv OS_KEYSTONE_CONFIG_DIR "$keystone_conf_dir
+    cmd="python "$PYTHON_HOME"mod_wsgi-express setup-server "$keystone_wsgi_public_path" --httpd-executable="$APACHE_BIN" --modules-directory="$APACHE_MODULE" --host "$ip" --port "$port" --user "$user" --group "$group" --server-root="$server_root" --setenv OS_KEYSTONE_CONFIG_DIR "$keystone_conf_dir
     $cmd
 ```
-注意：在virtualenv里编译安装的Python入口脚本，例如mod_wsgi-express和keystone-manage的脚本解释器(#!)都写上了python的全路径，无法直接移植，需要在bootstrap脚本中直接指定用python执行。
+注意：
+1. 在virtualenv里编译安装的Python入口脚本，例如mod_wsgi-express和keystone-manage的脚本解释器(#!)都写上了python的全路径，无法直接移植，需要在bootstrap脚本中直接指定用python执行。
+2. setup-server需要通过参数指定Apache的目录，否则mod_wsgi会使用编译时指定的Apache，达不到移植的效果。
 
 ### 起停脚本
 在~/keystone-prod目录下创建bin目录，用来存放起停脚本以及日常运维脚本。
