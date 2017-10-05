@@ -20,6 +20,13 @@
     解压缩后会消耗 66.8 MB 的额外空间。
     您希望继续执行吗？ [Y/n] y
     
+安装完成后，执行docker images，报错：“Cannot connect to the Docker daemon. Is the docker daemon running on this host?”，百度之后，发现是
+当前用户没有加入docker group。docker group在安装docker时已经自动创建，现在只需要加入，然后重启操作系统。
+
+    $ sudo usermod -aG docker $USER
+    
+
+
 ### 搭建GO语言环境
 参考阿里云容器服务的[博客](https://yq.aliyun.com/articles/110806)进行安装，但是发现安装失败，仔细一看，原来docker不支持32位CPU，没办法，我只好编译docker源码安装了。
 
