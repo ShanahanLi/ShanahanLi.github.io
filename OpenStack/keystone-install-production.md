@@ -233,3 +233,21 @@ POST /v3/auth/tokens, 成功！
 
 ## 总结
 至此，我拥有了一个可以在任意Ubuntu 16.04 LTS操作系统上任意移植的Keystone运行环境。唯一没有实现的就是mysql的移植，不过应用和数据库一般都是分离的，在真实产品环境中，bootstrap.sh还需要支持将数据库连接信息写入keystone.conf，以及生成fernet token需要的密钥。
+
+## 后记
+进入到keystone-prod的venv/bin，可以看到python实际上链接到本地的Python环境的，这样其实不利于产品移植，因为一台服务器上可能安装有多个产品，python版本可能要求不一样。所以我们需要把python也带在keystone-prod中。
+
+### 源码编译python
+在www.python.org 中下载对应版本的python源码，我需要的版本是2.7.12。
+
+    $ cd ~
+    $ tar xvf Python-2.7.12.tar.xz
+    $ mkdir /opt/keystone-prod/python2.7
+    $ cd ~/Python-2.7.12
+    $ ./configure --prefix=/opt/keystone-prod/python2.7
+    $ make
+    $ make install
+然后将venv下的site-packages内容全部拷贝过来。
+
+    $ cp -R /opt/keystone-prod/venv/lib/python2.7/site-packages/* /opt/keystone-prod/python2.7/lib/python2.7/site-packages/
+    
