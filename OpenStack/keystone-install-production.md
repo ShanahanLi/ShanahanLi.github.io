@@ -73,20 +73,20 @@ keystone-env的site-packages目录下只有pip等几个包：
 ### 安装mod-wsgi
 下载mod-wsgi源码，地址https://pypi.python.org/pypi/mod_wsgi ，pypi上有很详细的安装指南。
 mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develop/index.html 。
-源码下载至~/keystone-prod目录。安装mod-wsgi时需要使用启动virtualenv。
+源码下载至~目录。安装mod-wsgi时需要使用启动virtualenv。
 
-    $ tar xvf mod_wsgi-4.5.19.tar.gz
-    $ rm mod_wsgi-4.5.19.tar.gz
-    $ cd mod_wsgi-4.5.19
-    $ source ../venv/bin/activate
-    (venv)$ export APXS=~/keystone-prod/Apache2/bin/apxs
-    (venv)$ python setup.py install
+    $ tar xvf mod_wsgi-4.5.20.tar.gz
+    $ cd ~/keystone-prod
+    $ source ./keystone-venv/bin/activate
+    $ cd ~/mod_wsgi-4.5.20
+    (keystone-env)$ export APXS=~/keystone-prod/Apache2/bin/apxs
+    (keystone-env)$ python setup.py install
 注意：APXS环境变量导出时要修改为绝对路径。
-安装完成后,mod-wsgi安装在~/keystone-prod/venv/lib/python2.7/site-packages/mod_wsgi-4.5.19-py2.7-linux-i686.egg。
+安装完成后,mod-wsgi安装在~/keystone-prod/keystone-env/lib/python2.7/site-packages/mod_wsgi-4.5.20-py2.7-linux-i686.egg。
 
 验证mod-wsgi是否正常安装，可以执行下面的命令：
 
-    (venv)$ mod_wsgi-express start-server
+    (keystone-env)$ mod_wsgi-express start-server
     Server URL         : http://localhost:8000/
     Server Root        : /tmp/mod_wsgi-localhost:8000:1000
     Server Conf        : /tmp/mod_wsgi-localhost:8000:1000/httpd.conf
@@ -105,16 +105,16 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
 ## 运行keystone
 ### 安装keystone
     $ cd ~/keystone-prod
-    $ source ./venv/bin/activate
-    $ cd ./keystone
-    $ python setup.py install
-执行完成后，keystone的package被安装在~/keystone-prod/venv/lib/python2.7/site-packages/目录下。
+    $ source ./keystone-env/bin/activate
+    (keystone-env)$ cd ~/keystone
+    (keystone-env)$ python setup.py install
+执行完成后，keystone的package被安装在~/keystone-prod/keystone-env/python2.7/site-packages/目录下。
     
 ### 创建keystone配置文件。
     $ cd ~/keystone-prod
     $ mkdir -p ./etc/keystone
-    $ cp ./keystone/etc/keystone.conf.sample ./etc/keystone/keystone.conf
-    $ cp ./keystone/etc/keystone-paste.ini ./etc/keystone/
+    $ cp ~/keystone/etc/keystone.conf.sample ./etc/keystone/keystone.conf
+    $ cp ~/keystone/etc/keystone-paste.ini ./etc/keystone/
 打开keystone.conf。修改database配置。搜索[database, 将默认的配置注释，替换成下面的内容：
 
     [database]
@@ -127,7 +127,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
 ### 安装keystone的启动环境
     $ cd ~/keystone-prod
     $ source ./venv/bin/activate
-    (venv)$ mod_wsgi-express setup-server ~/keystone-prod/venv/bin/keystone-wsgi-public \
+    (keystone-env)$ mod_wsgi-express setup-server ~/keystone-prod/keystone-env/bin/keystone-wsgi-public \
     --host 192.168.1.103 --port 5000 --user keystone --group keystone --server-root=./etc/mod_wsgi-express-5000 \
     --setenv OS_KEYSTONE_CONFIG_DIR ~/keystone-prod/etc/keystone
     Server URL         : http://192.168.1.103:5000/
@@ -146,14 +146,14 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     Server Backlog     : 500 (connections)
     Locale Setting     : zh_CN.UTF-8
 
-    (venv)$ ./etc/mod_wsgi-express-5000/apachectl start
+    (keystone-env)$ ./etc/mod_wsgi-express-5000/apachectl start
 在浏览器中输入http://192.168.1.103:5000/v3，报500错误，进入./etc/mod_wsgi-express-5000/error_log，发现仍然是包依赖冲突：ContextualVersionConflict: (pika 0.11.0 (/home/lishanhang/keystone-prod/venv/lib/python2.7/site-packages), Requirement.parse('pika<0.11,>=0.9'), set(['pika-pool']))。
 
-    (venv)$ pip install pika==0.10
+    (keystone-env)$ pip install pika==0.10
 再次访问http://192.168.1.103:5000/v3，成功！
 但是执行POST /v3/auth/tokens，仍然报500错误，查看错误日志，是pymysql module找不到。
 
-    (venv)$ pip install pymysql
+    (keystone-env)$ pip install pymysql
 再次执行POST /v3/auth/tokens，成功返回token！
 
 ## 移植
@@ -180,7 +180,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     WORK_HOME=$(pwd)
     echo "The work directory is: $WORK_HOME"
 
-    PYTHON_HOME=$WORK_HOME"/venv/bin/"
+    PYTHON_HOME=$WORK_HOME"/keystone-env/bin/"
     echo "The PYTHON HOME is: $PYTHON_HOME"
     export PATH=$PYTHON_HOME:$PATH
     echo "The newest path is:$PATH"
@@ -219,7 +219,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     WORK_HOME=$(pwd)
     echo "The work directory is: $WORK_HOME" 
 
-    PYTHON_HOME=$WORK_HOME"/venv/bin"
+    PYTHON_HOME=$WORK_HOME"/keystone-env/bin"
     export PATH=$PYTHON_HOME:$PATH
     echo "The newest path is: $PYTHON_HOME"
 
@@ -239,7 +239,7 @@ mod-wsgi官网也有很详细的介绍，http://modwsgi.readthedocs.io/en/develo
     WORK_HOME=$(pwd)
     echo "The work directory is: $WORK_HOME" 
 
-    PYTHON_HOME=$WORK_HOME"/venv/bin"
+    PYTHON_HOME=$WORK_HOME"/keystone-env/bin"
     export PATH=$PYTHON_HOME:$PATH
     echo "The newest path is: $PYTHON_HOME"
 
