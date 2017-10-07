@@ -4,17 +4,6 @@
 建立工作目录：
 
     $ mkdir keystone-prod
-    
-## 源码安装python
-在www.python.org 中下载对应版本的python源码，我需要的版本是2.7.12。
-
-    $ cd ~
-    $ tar xvf Python-2.7.12.tar.xz
-    $ cd ~/Python-2.7.12
-    $ ./configure --prefix=~/keystone-prod/python2.7
-    $ make
-    $ make install
---prefix指定了安装的位置，执行时请修改为绝对路径。
 
 ## virtualenv
 virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版本以及间接权限问题。我希望通过virtualenv将keystone依赖的python环境独立出来，并可以移植发布。
@@ -24,13 +13,12 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
 
 ### 创建虚拟python环境
     $ cd ~/keystone-prod
-    $ virtualenv --python=/home/shanahanli/keystone-prod/python2.7/bin/python --no-site-packages --always-copy keystone-env
+    $ virtualenv --no-site-packages --always-copy keystone-env
 屏幕输出：
 
-    Running virtualenv with interpreter /home/shanahanli/keystone-prod/python2.7/bin/python
     New python executable in /home/shanahanli/keystone-prod/keystone-env/bin/python
     Installing setuptools, pip, wheel...done.
-命令virtualenv可以创建一个独立的Python运行环境，参数--no-site-packages可以让已经安装到系统Python环境中的所有第三方包都不会复制过来，同时指定了python执行程序来定制python版本，always-copy参数可以将python程序复制到环境中而不是链接。这样就得到了一个不带任何第三方包的“干净”的Python运行环境。
+命令virtualenv可以创建一个独立的Python运行环境，参数--no-site-packages可以让已经安装到系统Python环境中的所有第三方包都不会复制过来，--python指定了python执行程序来定制python版本，always-copy参数可以将python程序复制到环境中而不是链接。这样就得到了一个不带任何第三方包的“干净”的Python运行环境。
 keystone-env的site-packages目录下只有pip等几个包：
 
     $ ll
@@ -68,7 +56,7 @@ keystone-env的site-packages目录下只有pip等几个包：
     Listen 8888
     
     ServerName 192.168.1.103:8888
-执行～/keystone-prod/Apache2/bin/apachectl -k start 命令，启动Apache2。在浏览器中输入 htp://192.168.1.103:8888/，显示 It works! 说明Apache2安装成功。
+执行~/keystone-prod/Apache2/bin/apachectl -k start 命令，启动Apache2。在浏览器中输入 http://192.168.1.103:8888/，显示 It works! 说明Apache2安装成功。然后执行~/keystone-prod/Apache2/bin/apachectl -k stop命令，停止Apache2。
 
 ### 安装mod-wsgi
 下载mod-wsgi源码，地址https://pypi.python.org/pypi/mod_wsgi ，pypi上有很详细的安装指南。
@@ -273,18 +261,3 @@ POST /v3/auth/tokens, 成功！
     $ ./configure --prefix=/opt/keystone-prod/python2.7
     $ make
     $ make install
-然后将venv下的site-packages内容全部拷贝过来。
-
-    $ cp -R /opt/keystone-prod/venv/lib/python2.7/site-packages/* /opt/keystone-prod/python2.7/lib/python2.7/site-packages/
-服务启动后，访问keystone，报500错误，错误日志：
-
-    [Sat Oct 07 08:57:25.167890 2017] [wsgi:error] [pid 3575:tid 3075054144]     import ctypes
-    [Sat Oct 07 08:57:25.167927 2017] [wsgi:error] [pid 3575:tid 3075054144]   File "/opt/keystone-prod/python2.7/lib/python2.7/ctypes/__init__.py", line 7, in <module>
-    [Sat Oct 07 08:57:25.168145 2017] [wsgi:error] [pid 3575:tid 3075054144]     from _ctypes import Union, Structure, Array
-    [Sat Oct 07 08:57:25.168183 2017] [wsgi:error] [pid 3575:tid 3075054144] ImportError: /opt/keystone-prod/python2.7/lib/python2.7/lib-dynload/_ctypes.so: undefined symbol: PyUnicodeUCS2_FromUnicode
-百度之后，需要重新编译python：
-
-    $ ./configure --prefix=/opt/keystone-prod/python2.7 --enable-unicode=ucs4
-    $ make
-    $ make install
-
