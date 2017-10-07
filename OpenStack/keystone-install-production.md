@@ -1,6 +1,20 @@
 
 # 生产环境安装Keystone
 在上一篇文章[从源码安装Keystone](./install-keystone-from-sourcecode.md)中详细介绍了Keystone的源码完整过程，但是在一个企业级应用里，不可能在生产环境中使用pip来安装依赖包，首先生产环境不一定能访问公网，另外企业无法将OpenStack与自己的部署系统集成，这对想要基于OpenStack发布产品，批量商用的企业来说是很头疼的。所以我继续进行尝试，通过将Keystone及其依赖的软件包打包成产品来部署。
+建立工作目录：
+
+    $ mkdir keystone-prod
+    
+## 源码安装python
+在www.python.org 中下载对应版本的python源码，我需要的版本是2.7.12。
+
+    $ cd ~
+    $ tar xvf Python-2.7.12.tar.xz
+    $ cd ~/Python-2.7.12
+    $ ./configure --prefix=~/keystone-prod/python2.7
+    $ make
+    $ make install
+--prefix指定了安装的位置，执行时请修改为绝对路径。
 
 ## virtualenv
 virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版本以及间接权限问题。我希望通过virtualenv将keystone依赖的python环境独立出来，并可以移植发布。
@@ -9,28 +23,40 @@ virtualenv通过创建独立Python开发环境的工具, 来解决依赖、版�
     $ sudo pip install virtualenv
 
 ### 创建虚拟python环境
-    $ mkdir keystone-prod
-    $ virtualenv --no-site-packages venv
+    $ cd ~/keystone-prod
+    $ virtualenv --python=/home/shanahanli/keystone-prod/python2.7/bin/python --no-site-packages --always-copy keystone-env
 屏幕输出：
 
-    New python executable in ~/keystone-prod/venv/bin/python
+    Running virtualenv with interpreter /home/shanahanli/keystone-prod/python2.7/bin/python
+    New python executable in /home/shanahanli/keystone-prod/keystone-env/bin/python
     Installing setuptools, pip, wheel...done.
-命令virtualenv可以创建一个独立的Python运行环境，加上参数--no-site-packages，这样，已经安装到系统Python环境中的所有第三方包都不会复制过来，这样就得到了一个不带任何第三方包的“干净”的Python运行环境。
+命令virtualenv可以创建一个独立的Python运行环境，参数--no-site-packages可以让已经安装到系统Python环境中的所有第三方包都不会复制过来，同时指定了python执行程序来定制python版本，always-copy参数可以将python程序复制到环境中而不是链接。这样就得到了一个不带任何第三方包的“干净”的Python运行环境。
+keystone-env的site-packages目录下只有pip等几个包：
+
+    $ ll
+    easy_install.py
+    easy_install.pyc
+    pip/
+    pip-9.0.1.dist-info/
+    pkg_resources/
+    setuptools/
+    setuptools-36.5.0.dist-info/
+    wheel/
+    wheel-0.30.0.dist-info/
 
     $ cd ~/keystone-prod
-    $ cp -R ../keystone ./
-    $ source venv/bin/activate             
-    (venv)$ cd ~/keystone
-    (venv)$ pip install -r requirements.txt
-执行virtualenv的activate命令后，所有命令行都带有venv前缀（即虚拟环境）。pip安装的依赖包在~/keystone-prod/venv/lib/python2.7/site-packages下。
+    $ source keystone-env/bin/activate             
+    (keystone-env)$ cd ~/keystone
+    (keystone-env)$ pip install -r requirements.txt
+执行virtualenv的activate命令后，所有命令行都带有keystone-env前缀（即虚拟环境）。进入到keystone源码目录安装依赖包，pip安装的依赖包在~/keystone-prod/keystone-env/lib/python2.7/site-packages下。
 需要格外注意的是，一定要用当前工作用户来执行pip，不能用sudo，否则安装的package仍然是系统环境python下的。
 
 ## Apache2安装和配置
 为了让Apache2也可以移植，因此需要从源码编译安装Apache2。从[Apache2 Download](http://httpd.apache.org/download.cgi)源码，然后编译安装。
 ### 编译安装Apache2
-将源码目录下载在~/keystone-prod目录下。
+将源码下载在home目录下并解压。
 
-    $ cd ～/keystone-prod/httpd-2.4.27
+    $ cd ～/httpd-2.4.27
     $ sudo apt-get install libapr1-dev libaprutil1-dev
     $ sudo apt-get install libpcre3-dev
     $ ./configure --prefix=～/keystone-prod/Apache2
@@ -235,7 +261,7 @@ POST /v3/auth/tokens, 成功！
 至此，我拥有了一个可以在任意Ubuntu 16.04 LTS操作系统上任意移植的Keystone运行环境。唯一没有实现的就是mysql的移植，不过应用和数据库一般都是分离的，在真实产品环境中，bootstrap.sh还需要支持将数据库连接信息写入keystone.conf，以及生成fernet token需要的密钥。
 
 ## 后记
-进入到keystone-prod的venv/bin，可以看到python实际上链接到本地的Python环境的，这样其实不利于产品移植，因为一台服务器上可能安装有多个产品，python版本可能要求不一样。所以我们需要把python也带在keystone-prod中。
+进入到keystone-prod的venv/bin，可以看到python实际上链接到本地的Python环境的，这样其实不利于产品移植，因为一台服务器上可能安装有多个产品，python版本可能要求不一样。所以我们需要把python也带到keystone-prod中。
 
 ### 源码编译python
 在www.python.org 中下载对应版本的python源码，我需要的版本是2.7.12。
@@ -250,4 +276,15 @@ POST /v3/auth/tokens, 成功！
 然后将venv下的site-packages内容全部拷贝过来。
 
     $ cp -R /opt/keystone-prod/venv/lib/python2.7/site-packages/* /opt/keystone-prod/python2.7/lib/python2.7/site-packages/
-    
+服务启动后，访问keystone，报500错误，错误日志：
+
+    [Sat Oct 07 08:57:25.167890 2017] [wsgi:error] [pid 3575:tid 3075054144]     import ctypes
+    [Sat Oct 07 08:57:25.167927 2017] [wsgi:error] [pid 3575:tid 3075054144]   File "/opt/keystone-prod/python2.7/lib/python2.7/ctypes/__init__.py", line 7, in <module>
+    [Sat Oct 07 08:57:25.168145 2017] [wsgi:error] [pid 3575:tid 3075054144]     from _ctypes import Union, Structure, Array
+    [Sat Oct 07 08:57:25.168183 2017] [wsgi:error] [pid 3575:tid 3075054144] ImportError: /opt/keystone-prod/python2.7/lib/python2.7/lib-dynload/_ctypes.so: undefined symbol: PyUnicodeUCS2_FromUnicode
+百度之后，需要重新编译python：
+
+    $ ./configure --prefix=/opt/keystone-prod/python2.7 --enable-unicode=ucs4
+    $ make
+    $ make install
+
