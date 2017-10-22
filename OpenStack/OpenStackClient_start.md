@@ -100,7 +100,7 @@ Keysytone /v3/auth/tokens API的传参规律是：
 
     1. scope入参可以设置project或者domain。
     2. 如果仅指定name（project,domain），需要同时指定domain。如果指定id，name和其所属domain信息可以不指定。
-所有获取domain scope token时，OS_DOMAIN_NAME和OS_DOMAIN_ID等价。获取project scope token时，OS_PROJECT_ID等价于OS_PROJECT_NAME+OS_PROJECT_DOMAIN_NAME。
+所以获取domain scope token时，OS_DOMAIN_NAME和OS_DOMAIN_ID等价。获取project scope token时，OS_PROJECT_ID等价于OS_PROJECT_NAME+OS_PROJECT_DOMAIN_NAME。
 
 
 ## 解释
@@ -108,4 +108,4 @@ Keysytone /v3/auth/tokens API的传参规律是：
    因为从identity服务返回的token中包含了所有服务的endpoint，openstack client会从token中读取对应服务的endpoint地址，然后发送API请求。也可以直接设置OS_URL或者使用--os-url命令行选项。
    
 2. 接口类型
-    Openstack的接口可以分为admin, public和internal几类。通过OS_INTERFACE环境变量可以选择需访问的接口类型，export OS_INTERFACE=public
+    Openstack的接口可以分为admin, public和internal几类。通过OS_INTERFACE环境变量可以选择需访问的接口类型，例如export OS_INTERFACE=public
