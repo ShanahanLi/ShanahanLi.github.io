@@ -3,7 +3,7 @@
 ## 安装OpenStack Client
 虽然OpenStack社区已经为很多操作系统提供来安装源，例如Ubuntu上可以直接用下面的命令安装：
 
-    $ sudo apt-get install openstack-client
+    $ sudo apt-get install python-openstackclient
 但是我建议通过pip安装，并且利用virtualenv，“绿色”安装OpenStack Client。
 第一步：创建openstack client虚拟环境，并进入。
 
@@ -70,18 +70,42 @@ global-options对所有命令行生效，例如认证的选项：
 
     export OS_IDENTITY_API_VERSION=3
     export OS_AUTH_TYPE=v3samlpassword
-    export OS_AUTH_URL=https://iam.cn-north-1.myhwclouds.com:443/v3
+    export OS_AUTH_URL=<url-to-openstack-identity>
     export OS_IDENTITY_PROVIDER=idpid
     export OS_PROTOCOL=saml
     export OS_IDENTITY_PROVIDER_URL=https://idp.example.com/idp/profile/SAML2/SOAP/ECP
-    export OS_USERNAME=username
-    export OS_PASSWORD=userpassword
     export OS_PROJECT_NAME=<project-name>
     export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
+    export OS_USERNAME=username
     export OS_USER_DOMAIN_NAME=<user-domain-name>
+    export OS_PASSWORD=userpassword
 然后执行
 
     (openstackclient-env)# source ~/openstack_saml2.rc
     (openstackclient-env)# openstack token issue
 
+### 理解认证的参数
+上面的例子中获取的是project scope token，如果要获取domain scope token怎么办？
+环境变量可以设置成
+
+    export OS_AUTH_URL=<url-to-openstack-identity>
+    export OS_IDENTITY_API_VERSION=3
+    export OS_DOMAIN_NAME=<domain-name>
+    export OS_USERNAME=<username>
+    export OS_USER_DOMAIN_NAME=<user-domain-name>
+    export OS_PASSWORD=<password>  # (plain text, optional)
+那规律是什么呢？其实直接看OpenStack keystone的认证获取token的API guide就可以发现。https://developer.openstack.org/api-ref/identity/v3/index.html#authentication-and-token-management
+
+Keysytone /v3/auth/tokens API的传参规律是：
+
+    1. scope入参可以设置project或者domain。
+    2. 如果仅指定name（project,domain），需要同时指定domain。如果指定id，name和其所属domain信息可以不指定。
+所有获取domain scope token时，OS_DOMAIN_NAME和OS_DOMAIN_ID等价。获取project scope token时，OS_PROJECT_ID等价于OS_PROJECT_NAME+OS_PROJECT_DOMAIN_NAME。
+
+
 ## 解释
+1. 为什么没有输入image API的地址就能访问image。
+   因为从identity服务返回的token中包含了所有服务的endpoint，openstack client会从token中读取对应服务的endpoint地址，然后发送API请求。也可以直接设置OS_URL或者使用--os-url命令行选项。
+   
+2. 接口类型
+    Openstack的接口可以分为admin, public和internal几类。通过OS_INTERFACE环境变量可以选择需访问的接口类型，export OS_INTERFACE=public
