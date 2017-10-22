@@ -33,7 +33,24 @@ help命令可以获取具体命令的详细帮助。例如:
     (openstackclient-env)$ pip instal -e .
 区别在于setup.py仅安装源码，不安装依赖，而pip instal可以做到。
 
+## 使用OpenStack Client
+OpenStack Client命令行有共同的格式：
+
+    openstack [<global-options>] <object-1> <action> [<object-2>] [<command-arguments>]
+global-options对所有命令行生效，例如认证的选项：    
     
+    --os-auth-url <url>
+    --os-identity-api-version 3
+    --os-project-name <project-name>
+    --os-project-domain-name <project-domain-name>
+    --os-username <username>
+    --os-user-domain-name <user-domain-name>
+    [--os-password <password>]
+从--help也可以看到，OpenStack Client有一大堆全局选项，但如果每次执行命令都带上这么多选项就太麻烦了，好在通过环境变量可以替换掉，不过如果两者同时存在，命令行全局选项优先。环境变量的名字就是全局选项前面的“--”去掉，然后中间的“-”替换为“_”，例如，全局选项--os-username可以被环境变量OS_USERNAME替换。
+
+### 认证
+
+
 
     
 
