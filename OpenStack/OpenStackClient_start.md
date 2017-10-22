@@ -5,7 +5,7 @@
 
     $ sudo apt-get install openstack-client
 但是我建议通过pip安装，并且利用virtualenv，“绿色”安装OpenStack Client。
-第一步：创建openstack client虚拟环境，并进入虚拟环境。
+第一步：创建openstack client虚拟环境，并进入。
 
     $ virtualenv --no-site-packages --always-copy openstackclient-env
     $ cd openstackclient-env/
@@ -48,10 +48,40 @@ global-options对所有命令行生效，例如认证的选项：
     [--os-password <password>]
 从--help也可以看到，OpenStack Client有一大堆全局选项，但如果每次执行命令都带上这么多选项就太麻烦了，好在通过环境变量可以替换掉，不过如果两者同时存在，命令行全局选项优先。环境变量的名字就是全局选项前面的“--”去掉，然后中间的“-”替换为“_”，例如，全局选项--os-username可以被环境变量OS_USERNAME替换。
 
-### 认证
+### 密码认证
+创建一个文本文件，例如openstack_password.rc，然后输入下面内容：
 
+    export OS_AUTH_URL=<url-to-openstack-identity>
+    export OS_IDENTITY_API_VERSION=3
+    export OS_PROJECT_NAME=<project-name>
+    export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
+    export OS_USERNAME=<username>
+    export OS_USER_DOMAIN_NAME=<user-domain-name>
+    export OS_PASSWORD=<password>  # (plain text, optional)
+密码可选，如果不输入密码，命令行会通过交互式方式提示输入。执行
 
+    (openstackclient-env)# source ~/openstack_password.rc
+    (openstackclient-env)# openstack token issue
+    (openstackclient-env)# openstack image list --public
+屏幕输出token，说明认证通过，可以正常访问。通过命令行查询所有公共镜像，也成功返回结果。
 
-    
+### SAML联邦认证
+创建一个文本文件，例如openstack_saml2.rc，然后输入下面内容：
 
-   
+    export OS_IDENTITY_API_VERSION=3
+    export OS_AUTH_TYPE=v3samlpassword
+    export OS_AUTH_URL=https://iam.cn-north-1.myhwclouds.com:443/v3
+    export OS_IDENTITY_PROVIDER=idpid
+    export OS_PROTOCOL=saml
+    export OS_IDENTITY_PROVIDER_URL=https://idp.example.com/idp/profile/SAML2/SOAP/ECP
+    export OS_USERNAME=username
+    export OS_PASSWORD=userpassword
+    export OS_PROJECT_NAME=<project-name>
+    export OS_PROJECT_DOMAIN_NAME=<project-domain-name>
+    export OS_USER_DOMAIN_NAME=<user-domain-name>
+然后执行
+
+    (openstackclient-env)# source ~/openstack_saml2.rc
+    (openstackclient-env)# openstack token issue
+
+## 解释
